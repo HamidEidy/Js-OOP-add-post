@@ -6,65 +6,146 @@ class Post {
     }
 }
 
-
-
 class UI {
+
     addPostToList(post) {
+        // Get List Post
         const list = document.getElementById("post-list");
+
+        // Create tr element
         const row = document.createElement("tr");
+
+        // Insert cols
         row.innerHTML = `
-              <th> ${post.title} </th>
-              <td>${post.author}</td>
-              <td>${post.body}</td>
-              <td> <i class="fas fa-times text-danger delete"></i> </td>
-         `;
+            <th>${post.title}</th>
+            <td>${post.author}</td>
+            <td>${post.body}</td>
+            <td> <i class="fas fa-times text-danger delete"></i> </td>
+          `;
+
         list.appendChild(row);
     }
+
     showAlert(message, className) {
+
+        // Create div
         const div = document.createElement('div');
+
+        // Add classes
         div.className = `alert alert-${className}`;
+
+        // Add text
         div.appendChild(document.createTextNode(message));
+
+        // Get parent
         const col = document.querySelector('.col-sm-8');
+
+        // Get form
         const form = document.querySelector('#post-form');
+
+        // Insert alert
         col.insertBefore(div, form);
 
+        // Timeout after 3 sec
         setTimeout(function () {
             document.querySelector('.alert').remove();
         }, 3000);
+
     }
-    clearfield() {
-        document.getElementById("title").value = '';
-        document.getElementById("author").value = '';
-        document.getElementById("body").value = '';
+
+    clearFields() {
+        document.getElementById('title').value = '';
+        document.getElementById('author').value = '';
+        document.getElementById('body').value = '';
     }
+
+    deletePost(target) {
+        target.parentElement.parentElement.remove();
+    }
+
+}
+
+class Store {
+    static getPosts() {
+        let posts;
+        if (localStorage.getItem('posts') === null) {
+            posts = [];
+        } else {
+            posts = JSON.parse(localStorage.getItem('posts'));
+        }
+        return posts;
+    }
+    static displayPosts() {
+        const posts = Store.getPosts();
+        posts.forEach(function (post) {
+            const ui = new UI;
+            ui.addPostToList(post);
+        });
+    }
+    static addPost(post) {
+        const posts = Store.getPosts();
+        posts.push(post);
+        localStorage.setItem('posts', JSON.stringify(posts));
+    }
+
 
 }
 
 
 
 
+
+document.addEventListener("DOMContentLoaded", Store.displayPosts)
+
+// Event Listener For Add Post
 document.getElementById("post-form").addEventListener("submit", function (e) {
+
+    // Get Form Value
     const title = document.getElementById("title").value;
     const author = document.getElementById("author").value;
     const body = document.getElementById("body").value;
 
-    const post = new Post(title, author, body)
+    // Instantiate Post
+    const post = new Post(title, author, body);
 
+    // Instantiate UI
     const ui = new UI();
 
-    if (title === '' | author === '' | body === '') {
-        ui.showAlert('تمام فیلد هارا وارد کنید', 'danger');
-
+    // Validate
+    if (title === '' || author === '' || body === '') {
+        // Error alert
+        ui.showAlert('تمام فیلد ها الزامی هستند', 'danger');
     } else {
+        // Add book to list
         ui.addPostToList(post);
-        ui.showAlert('پست اضافه شد', 'success')
-        ui.clearfield();
- 
+        Store.addPost(post);
+        // Show success
+        ui.showAlert('پست اضافه شد !', 'success');
+
+        // Clear fields
+        ui.clearFields();
     }
+
     e.preventDefault();
 
+});
 
+// Event Listener for delete
+document.getElementById('post-list').addEventListener('click', function (e) {
 
-})
+    // Instantiate UI
+    const ui = new UI();
 
+    if (e.target.classList.contains('delete')) {
+
+        // Delete book
+        ui.deletePost(e.target);
+
+        // Show message
+        ui.showAlert('پست حذف شد', 'success');
+
+    }
+
+    e.preventDefault();
+});
 
