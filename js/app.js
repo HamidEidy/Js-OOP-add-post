@@ -20,11 +20,24 @@ class UI {
          `;
         list.appendChild(row);
     }
+    showAlert(message, className) {
+        const div = document.createElement('div');
+        div.className = `alert alert-${className}`;
+        div.appendChild(document.createTextNode(message));
+        const col = document.querySelector('.col-sm-8');
+        const form = document.querySelector('#post-form');
+        col.insertBefore(div, form);
+
+        setTimeout(function () {
+            document.querySelector('.alert').remove();
+        }, 3000);
+    }
     clearfield() {
         document.getElementById("title").value = '';
         document.getElementById("author").value = '';
         document.getElementById("body").value = '';
     }
+
 }
 
 
@@ -38,9 +51,20 @@ document.getElementById("post-form").addEventListener("submit", function (e) {
     const post = new Post(title, author, body)
 
     const ui = new UI();
-    ui.addPostToList(post)
-    ui.clearfield();
+
+    if (title === '' | author === '' | body === '') {
+        ui.showAlert('تمام فیلد هارا وارد کنید', 'danger');
+
+    } else {
+        ui.addPostToList(post);
+        ui.showAlert('پست اضافه شد', 'success')
+        ui.clearfield();
+ 
+    }
     e.preventDefault();
+
+
+
 })
 
 
