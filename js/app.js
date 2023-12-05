@@ -64,7 +64,7 @@ class UI {
     }
 
 }
-
+// Local Storage Class
 class Store {
     static getPosts() {
         let posts;
@@ -87,14 +87,24 @@ class Store {
         posts.push(post);
         localStorage.setItem('posts', JSON.stringify(posts));
     }
-
+    static removePost(title) {
+        const posts = Store.getPosts();
+    
+        posts.forEach(function(post, index){
+         if(post.title === title) {
+          posts.splice(index, 1);
+         }
+        });
+    
+        localStorage.setItem('posts', JSON.stringify(posts));
+      }
 
 }
 
 
 
 
-
+// DOM Load Event
 document.addEventListener("DOMContentLoaded", Store.displayPosts)
 
 // Event Listener For Add Post
@@ -118,6 +128,7 @@ document.getElementById("post-form").addEventListener("submit", function (e) {
     } else {
         // Add book to list
         ui.addPostToList(post);
+          // Add to LS
         Store.addPost(post);
         // Show success
         ui.showAlert('پست اضافه شد !', 'success');
@@ -129,6 +140,32 @@ document.getElementById("post-form").addEventListener("submit", function (e) {
     e.preventDefault();
 
 });
+
+// Event Listener for delete
+document.getElementById('post-list').addEventListener('click', function(e){
+
+    // Instantiate UI
+    const ui = new UI();
+  
+    if( e.target.classList.contains('delete') ) {
+  
+      // Delete book
+      ui.deletePost(e.target);
+  
+      // Remove from LS
+      const tr = e.target.parentElement.parentElement;
+      const title = tr.firstElementChild.textContent
+      
+      Store.removePost(title);
+  
+      // Show message
+      ui.showAlert('پست حذف شد', 'success');
+      
+    }
+  
+    e.preventDefault();
+  });
+  
 
 // Event Listener for delete
 document.getElementById('post-list').addEventListener('click', function (e) {
